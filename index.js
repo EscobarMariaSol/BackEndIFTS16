@@ -3,13 +3,21 @@ const fs = require('fs');
 const app = express();
 const PORT = 3000;
 
-// Middleware para analizar JSON
+//Middleware para analizar JSON
 app.use(express.json());
 
 // Funciones Auxiliares
 
-function respuestaOk(res, msg) {
+function respuestaOk(res, msg){
     return res.status(200).json(msg);   
+}
+
+function errorDeLectura(res){
+    return res.status(500).json({ message: 'Error al leer el archivo' });
+}
+
+function errorDeEscritura(res){
+    return res.status(500).json({ message: 'Error al escribir en el archivo' });
 }
 
 // Rutas
@@ -22,22 +30,19 @@ app.get('/', (req, res) => {
 ///GET: 2. Ruta para obtener los integrantes
 app.get('/integrantes', (req, res) => {
     fs.readFile('integrantes.json', 'utf-8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error al leer el archivo' });
-        }
+        if (err) errorDeLectura(res);
         respuestaOk(res, JSON.parse(data));
     });
 });
 
 ///GET: 3. Ruta para obtener un integrante por su DNI => GET /integrantes/:id
 app.get('/integrantes/:dni', (req, res) => {
-    const { dni } = req.params; // Extraer el DNI de los parámetros de la URL
+    // Extraer el DNI de los parámetros de la URL
+    const { dni } = req.params; 
 
     // Leer el archivo JSON
     fs.readFile('integrantes.json', 'utf-8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error al leer el archivo' });
-        }
+        if (err) errorDeLectura(res);
 
         // Parsear los datos del archivo
         const integrantes = JSON.parse(data);
@@ -71,10 +76,8 @@ app.post('/integrantes/agregar', (req, res) => {
 
     // Leer el archivo JSON
     fs.readFile('integrantes.json', 'utf-8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error al leer el archivo' });
-        }
-
+        if (err) errorDeLectura(res);
+        
         // Parsear los datos existentes
         const integrantes = JSON.parse(data);
 
@@ -89,9 +92,7 @@ app.post('/integrantes/agregar', (req, res) => {
 
         // Escribir los datos actualizados en el archivo JSON
         fs.writeFile('integrantes.json', JSON.stringify(integrantes, null, 2), (err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Error al escribir en el archivo' });
-            }
+            if (err) errorDeEscritura(res);
 
             // Devolver la lista completa de integrantes
             respuestaOk(res, {
@@ -105,8 +106,11 @@ app.post('/integrantes/agregar', (req, res) => {
 
 // PUT: Ruta para actualizar el apellido de un integrante por su mail
 app.put('/integrantes/:mail', (req, res) => {
-    const { mail } = req.params; // Extraer el mail de los parámetros de la URL
-    const { apellido } = req.body; // Extraer el nuevo apellido del cuerpo de la solicitud
+    // Extraer el mail de los parámetros de la URL
+    const { mail } = req.params;
+
+    // Extraer el nuevo apellido del cuerpo de la solicitud
+    const { apellido } = req.body; 
 
     // Validar que el apellido está presente en la solicitud
     if (!apellido) {
@@ -115,9 +119,7 @@ app.put('/integrantes/:mail', (req, res) => {
 
     // Leer el archivo JSON
     fs.readFile('integrantes.json', 'utf-8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error al leer el archivo' });
-        }
+        if (err) errorDeLectura(res);
 
         // Parsear los datos existentes
         const integrantes = JSON.parse(data);
@@ -134,9 +136,7 @@ app.put('/integrantes/:mail', (req, res) => {
 
         // Escribir los datos actualizados en el archivo JSON
         fs.writeFile('integrantes.json', JSON.stringify(integrantes, null, 2), (err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Error al escribir en el archivo' });
-            }
+            if (err) errorDeLectura(res);
 
             // Devolver el integrante actualizado
             respuestaOk(res, {
@@ -150,13 +150,12 @@ app.put('/integrantes/:mail', (req, res) => {
 
 // DELETE: Ruta para eliminar un integrante por DNI
 app.delete('/integrantes/:dni', (req, res) => {
-    const { dni } = req.params; // Extraer el DNI de los parámetros de la URL
+    // Extraer el DNI de los parámetros de la URL
+    const { dni } = req.params; 
 
     // Leer el archivo JSON
     fs.readFile('integrantes.json', 'utf-8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error al leer el archivo' });
-        }
+        if (err) errorDeLectura(res);
 
         // Parsear los datos existentes
         const integrantes = JSON.parse(data);
@@ -171,11 +170,9 @@ app.delete('/integrantes/:dni', (req, res) => {
         // Eliminar el integrante del array
         const integranteEliminado = integrantes.splice(integranteIndex, 1);
 
-        // Escribir los datos actualizados en el archivo JSON
+        // Actualizar el archivo JSON
         fs.writeFile('integrantes.json', JSON.stringify(integrantes, null, 2), (err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Error al escribir en el archivo' });
-            }
+            if (err) errorDeEscritura(res);
 
             // Devolver la lista completa de integrantes actualizada
             respuestaOk(res, {
