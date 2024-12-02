@@ -6,181 +6,107 @@ const PORT = 3000;
 //Middleware para analizar JSON
 app.use(express.json());
 
-// Funciones Auxiliares
-
-function respuestaOk(res, msg){
-    return res.status(200).json(msg);   
-}
-
-function errorDeLectura(res){
-    return res.status(500).json({ message: 'Error al leer el archivo' });
-}
-
-function errorDeEscritura(res){
-    return res.status(500).json({ message: 'Error al escribir en el archivo' });
-}
+const Integrante = require('./models/integranteModel'); // Importa el modelo de Mongoose
 
 // Rutas
 ///GET: 1. Ruta principal
+
 app.get('/', (req, res) => {
-    respuestaOk(res, {message: '¡Bienvenido a mi primer API! Todo está funcionando correctamente.'});
+    res.status(200).json({
+        message: '¡Bienvenido a la API! Todo está funcionando correctamente.'
+    });
 });
 
 
 ///GET: 2. Ruta para obtener los integrantes
-app.get('/integrantes', (req, res) => {
-    fs.readFile('integrantes.json', 'utf-8', (err, data) => {
-        if (err) errorDeLectura(res);
-        respuestaOk(res, JSON.parse(data));
-    });
+
+app.get('/integrantes', async (req, res) => {
+    try {
+        // Buscar todos los integrantes en la colección
+        const integrantes = await Integrante.find();
+        res.json(integrantes);
+    } catch (err) {
+        // Manejar errores
+        res.status(500).json({ error: 'Error al obtener los integrantes: ' + err.message });
+    }
 });
 
-///GET: 3. Ruta para obtener un integrante por su DNI => GET /integrantes/:id
-app.get('/integrantes/:dni', (req, res) => {
-    // Extraer el DNI de los parámetros de la URL
-    const { dni } = req.params; 
+///GET: 3. Ruta para obtener un integrante por su DNI => GET /integrantes/:dni
 
-    // Leer el archivo JSON
-    fs.readFile('integrantes.json', 'utf-8', (err, data) => {
-        if (err) errorDeLectura(res);
-
-        // Parsear los datos del archivo
-        const integrantes = JSON.parse(data);
-
-        // Buscar el integrante con el DNI proporcionado
-        const integrante = integrantes.find(integrante => integrante.dni === parseInt(dni));
-
+app.get('/integrantes/:dni', async (req, res) => {
+    try {
+        const integrante = await Integrante.findOne({ dni: parseInt(req.params.dni) });
         if (!integrante) {
-            return res.status(404).json({ message: `Integrante con DNI ${dni} no encontrado` });
+            return res.status(404).json({ message: 'Integrante no encontrado' });
         }
-
-        // Devolver los datos del integrante
-        respuestaOk(res, {
-            nombre: integrante.nombre,
-            apellido: integrante.apellido,
-            mail: integrante.mail
-        });
-    });
+        res.status(200).json(integrante);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al buscar integrante', error: error.message });
+    }
 });
 
-// POST: Ruta para agregar un nuevo integrante
-app.post('/integrantes/agregar', (req, res) => {
-    const nuevoIntegrante = req.body;
+// POST: 4.  Ruta para agregar un nuevo integrante
 
-    // Validar que todos los campos requeridos están presentes
-    if (!nuevoIntegrante.dni || !nuevoIntegrante.nombre || !nuevoIntegrante.apellido || !nuevoIntegrante.mail) {
-        return res.status(400).json({ 
-            message: 'Faltan datos. Asegúrate de incluir dni, nombre, apellido y mail.' 
-        });
+app.post('/integrantes/agregar', async (req, res) => {
+    try {
+        const nuevoIntegrante = new Integrante(req.body);
+        await nuevoIntegrante.save();
+        res.status(201).json({ message: 'Integrante agregado con éxito', data: nuevoIntegrante });
+    } catch (error) {
+        res.status(400).json({ message: 'Error al agregar integrante', error: error.message });
+    }
+});
+
+
+// PUT: 5. Modificar el mail de un integrante buscandolo por DNI
+
+app.put('/integrantes/:dni', async (req, res) => {
+    const { email } = req.body; // Extraer el nuevo email del cuerpo de la solicitud
+    const { dni } = req.params; // Obtener el DNI de los parámetros de la URL
+
+    // Validar que el nuevo email esté presente en el cuerpo de la solicitud
+    if (!email) {
+        return res.status(400).json({ mensaje: 'Falta el nuevo email' });
     }
 
-    // Leer el archivo JSON
-    fs.readFile('integrantes.json', 'utf-8', (err, data) => {
-        if (err) errorDeLectura(res);
-        
-        // Parsear los datos existentes
-        const integrantes = JSON.parse(data);
+    try {
+        // Buscar y actualizar el correo electrónico del integrante según el DNI
+        const integranteActualizado = await Integrante.findOneAndUpdate(
+            { dni }, // Filtro: buscar por DNI
+            { email }, // Actualización: establecer el nuevo email
+            { new: true } // Devuelve el documento actualizado
+        );
 
-        // Verificar si el ID ya existe
-        const dniExiste = integrantes.some(integrante => integrante.dni === nuevoIntegrante.dni);
-        if (dniExiste) {
-            return res.status(400).json({ message: `El DNI ${nuevoIntegrante.dni} ya está en uso. Usa un DNI único.` });
+        // Si el integrante no existe, devolver un error 404
+        if (!integranteActualizado) {
+            return res.status(404).json({ mensaje: 'Integrante no encontrado con ese DNI' });
         }
 
-        // Agregar el nuevo integrante a la lista
-        integrantes.push(nuevoIntegrante);
-
-        // Escribir los datos actualizados en el archivo JSON
-        fs.writeFile('integrantes.json', JSON.stringify(integrantes, null, 2), (err) => {
-            if (err) errorDeEscritura(res);
-
-            // Devolver la lista completa de integrantes
-            respuestaOk(res, {
-                message: 'Integrante agregado con éxito.',
-                data: integrantes
-            });
+        // Respuesta exitosa con los datos actualizados del integrante
+        res.json({
+            mensaje: 'Email actualizado correctamente',
+            integrante: integranteActualizado
         });
-    });
-});
-
-
-// PUT: Ruta para actualizar el apellido de un integrante por su mail
-app.put('/integrantes/:mail', (req, res) => {
-    // Extraer el mail de los parámetros de la URL
-    const { mail } = req.params;
-
-    // Extraer el nuevo apellido del cuerpo de la solicitud
-    const { apellido } = req.body; 
-
-    // Validar que el apellido está presente en la solicitud
-    if (!apellido) {
-        return res.status(400).json({ message: 'Falta el campo apellido en el cuerpo de la solicitud.' });
+    } catch (err) {
+        // Manejar errores del servidor
+        res.status(500).json({ error: 'Error al actualizar el email: ' + err.message });
     }
-
-    // Leer el archivo JSON
-    fs.readFile('integrantes.json', 'utf-8', (err, data) => {
-        if (err) errorDeLectura(res);
-
-        // Parsear los datos existentes
-        const integrantes = JSON.parse(data);
-
-        // Buscar el integrante por mail
-        const integranteIndex = integrantes.findIndex(integrante => integrante.mail === mail);
-
-        if (integranteIndex === -1) {
-            return res.status(404).json({ message: `No se encontró un integrante con el mail ${mail}` });
-        }
-
-        // Actualizar el apellido del integrante encontrado
-        integrantes[integranteIndex].apellido = apellido;
-
-        // Escribir los datos actualizados en el archivo JSON
-        fs.writeFile('integrantes.json', JSON.stringify(integrantes, null, 2), (err) => {
-            if (err) errorDeLectura(res);
-
-            // Devolver el integrante actualizado
-            respuestaOk(res, {
-                message: 'Apellido actualizado con éxito.',
-                data: integrantes[integranteIndex]
-            });
-        });
-    });
 });
 
+// DELETE: 6. Ruta para eliminar un integrante por DNI
+app.delete('/integrantes/:dni', async (req, res) => {
+    try {
+        const integranteEliminado = await Integrante.findOneAndDelete({ dni: req.params.dni });
 
-// DELETE: Ruta para eliminar un integrante por DNI
-app.delete('/integrantes/:dni', (req, res) => {
-    // Extraer el DNI de los parámetros de la URL
-    const { dni } = req.params; 
-
-    // Leer el archivo JSON
-    fs.readFile('integrantes.json', 'utf-8', (err, data) => {
-        if (err) errorDeLectura(res);
-
-        // Parsear los datos existentes
-        const integrantes = JSON.parse(data);
-
-        // Buscar el índice del integrante por DNI
-        const integranteIndex = integrantes.findIndex(integrante => integrante.dni === parseInt(dni));
-
-        if (integranteIndex === -1) {
-            return res.status(404).json({ message: `No se encontró un integrante con el DNI ${dni}` });
+        if (integranteEliminado) {
+            const integrantes = await Integrante.find();
+            res.json(integrantes);
+        } else {
+            res.status(404).json({ mensaje: 'No se encontró el integrante con el DNI especificado' });
         }
-
-        // Eliminar el integrante del array
-        const integranteEliminado = integrantes.splice(integranteIndex, 1);
-
-        // Actualizar el archivo JSON
-        fs.writeFile('integrantes.json', JSON.stringify(integrantes, null, 2), (err) => {
-            if (err) errorDeEscritura(res);
-
-            // Devolver la lista completa de integrantes actualizada
-            respuestaOk(res, {
-                message: `El integrante con DNI ${dni} ha sido eliminado.`,
-                data: integrantes
-            });
-        });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Servidor escuchando
