@@ -42,7 +42,7 @@ router.post('/', async (req, res) => {
 
     try {
         await nuevoIntegrante.save();
-        res.status(201).json(nuevoIntegrante);
+        res.status(201).json({mensaje: 'Integrante cargado correctamente', nuevoIntegrante});
     } catch (err) {
         res.status(500).json({ error: 'Error al agregar el integrante: ' + err.message });
     }
@@ -72,7 +72,7 @@ router.put('/:dni', async (req, res) => {
             res.status(404).json({ mensaje: 'Integrante no encontrado' });
         }
     } catch (err) {
-        res.status(500).json({ error: 'Error al actualizar el email: ' + err.message });
+        res.status(500).json({ error: 'Error al modificar el email: ' + err.message });
     }
 });
 
