@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
+
 const integrantesRoutes = require('./routes/integrantes');
+const cursosRoutes = require('./routes/cursos');
 
 const app = express();
 const PORT = 3000;
@@ -16,6 +18,10 @@ app.use(express.json());
 
 // Prefijo para las rutas de integrantes
 app.use('/integrantes', integrantesRoutes); 
+
+// Prefijo para las rutas de los cursos
+app.use('/cursos', cursosRoutes);
+
 
 // Conectar a MongoDB Atlas
 const MONGO_URI = 'mongodb+srv://SolEscobar:Password@clusterbackend.juuys.mongodb.net/BackendDB?retryWrites=true&w=majority';
