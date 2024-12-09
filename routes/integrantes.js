@@ -72,7 +72,7 @@ router.put('/:dni', async (req, res) => {
             res.status(404).json({ mensaje: 'Integrante no encontrado' });
         }
     } catch (err) {
-        res.status(500).json({ error: 'Error al actualizar el email: ' + err.message });
+        res.status(500).json({ error: 'Error al modificar el email: ' + err.message });
     }
 });
 

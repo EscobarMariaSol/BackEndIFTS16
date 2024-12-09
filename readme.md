@@ -38,8 +38,8 @@
 
     ```
     ¡Mi aplicación está funcionando correctamente!
-    ```
-    
+    ``` 
+
     2.2. *Consultar todos los integrantes* `Localhost:3000/integrantes`: Deberá recibir una lista de todos los integrantes registrados en la base de datos, con sus respectivos datos registrados.
 
     ```
@@ -62,6 +62,8 @@
         }
     ]
     ```
+
+    _Error:_ en caso de error se recibirá el mensaje `Error al obtener los integrantes`, junto con una descripción del error.
     
     2.3. *Consultar todos los cursos* `Localhost:3000/cursos`: Deberá recibir una lista de todos los cursos registrados en la base de datos, con sus respectivos datos registrados.
 
@@ -94,6 +96,8 @@
         }
     ]
     ```
+
+    _Error:_ en caso de error se recibirá el mensaje `Error al obtener los cursos`, junto con una descripción del error.
     
     2.2. *Consultar todos los cursos asignados a un integrante según su DNI* `Localhost:3000/cursos/cursos/:dni`: Deberá recibir una lista de todos los cursos a los que fue asignado el integrante cuyo dni ha ingresado, con sus respectivos datos registrados.
 
@@ -132,6 +136,8 @@
         ]
     }
     ```
+    _Errores:_ 
+        En caso de que el dni no sea de un integrante registrado se recibirá el mensaje `El DNI del integrante no es válido`. En caso de algún otro error, recibirá el mensaje `Error al consultar los cursos del integrante`, junto con una descripción del error.
 
 3. POST: 
 
@@ -160,6 +166,9 @@
     }
     ```
 
+    _Errores:_
+        En caso de que no se ingresen todos los datos necesarios para crear a un integrante, se recibirá el siguiente mensaje `Faltan datos en el cuerpo de la solicitud`. En caso de algún otro error se recibirá el siguiente mensaje `Error al agregar el integrante`, junto con una descripción del error.
+
     3.2. *Agregar un curso* `Localhost:3000/cursos`: Para cargar un nuevo curso deberá cargar un archivo .json con los siguientes datos: 
     ```
     {
@@ -186,6 +195,9 @@
     }
     ```
 
+    _Errores:_
+        En caso de que no se ingresen todos los datos necesarios para crear a un curso, se recibirá el siguiente mensaje `Faltan datos en el cuerpo de la solicitud`. En caso de algún otro error se recibirá el siguiente mensaje `Error al agregar el curso`, junto con una descripción del error.
+
 4. PUT: 
 
     4.1. *Modificar el email de un integrante ingresando su DNI* `Localhost:3000/integrantes/:dni`: Para modificar el email de un integrante, ubicando al mismo por su número de dni, deberá ingresar como dato, en formato .json, el nuevo email del integrante:
@@ -209,7 +221,10 @@
         }
     }
     ```
+    _Errores:_
+        En caso de que no se ingrese el nuevo email, se recibirá el siguiente mensaje `Falta el nuevo email`. En caso de que el dni no corresponda al de un integrante registrado, se recibirá el siguiente mensaje `Integrante no encontrado`. En caso de algún otro error se recibirá el siguiente mensaje `Error al modificar el email`, junto con una descripción del error.
 
+    
     4.2. *Asignar un integrante a un curso* `Localhost:3000/cursos/asignar`: Para asignar un integrante dentro de un determinado curso debe ingresar los datos en el siguiente formato .json:
      ```
     {
@@ -236,6 +251,8 @@
         }
     }
     ```
+    _Errores:_
+        En caso de que el curso ingresado no exista, se recibirá el siguiente mensaje `Curso no encontrado`. En caso de que el integrante ingresado no exista, se recibirá el siguiente mensaje `Integrante no encontrado`. En caso de que el integrante ya este asignado al curso se recibirá el siguiente mensaje `El integrante ya está asignado a este curso`. En caso de algún otro error se recibirá el siguiente mensaje `Error al asigna el integrante`, junto con una descripción del error.
 
 5. DELETE:
 
@@ -254,6 +271,8 @@
         }
     }
     ```
+    _Errores:_
+        En caso de que el integrante no exista, se recibirá el siguiente mensaje `Integrante no encontrado`. En caso de algún otro error se recibirá el siguiente mensaje `Error al eliminar el integrante`, junto con una descripción del error.
 
     5.2. *Eliminar un curso* `Localhost:3000/cursos/:codigo`:  Para eliminar un curso con todos sus datos. Si el curso cuyo código ha ingresado existe, como respuesta recibirá un mensaje que confirme que el integrante se eliminó correctamente, junto con los datos eliminados.
 
@@ -271,3 +290,7 @@
         }
     }
     ```
+
+     _Errores:_ 
+En caso de que el integrante no exista, se recibirá el siguiente mensaje `Curso no encontrado`. En caso de algún otro error se recibirá el siguiente mensaje `Error al eliminar el curso`, junto con una descripción del error.
+
