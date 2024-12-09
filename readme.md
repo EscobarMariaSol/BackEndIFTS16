@@ -29,7 +29,7 @@
 
 ## Como probar la aplicación
 
-1. Ingresar a [Postma](https://web.postman.co/) para probar las rutas
+1. Ingresar a [Postman](https://web.postman.co/) para probar las rutas
 
 2. GET: 
     
