@@ -29,11 +29,17 @@
 
 ## Como probar la aplicación
 
-1- Ingresar a Postman para probar las rutas
+1. Ingresar a [Postma](https://web.postman.co/) para probar las rutas
 
-2- GET: 
-    2.1- Localhost:3000/ => Deberá recibir un mensaje que informe que la API funciona correctamente
-    2.2- Localhost:3000/integrantes => Deberá recibir una lista de todos los integrantes registrados en la base de datos, con sus respectivos datos registrados.
+2. GET: 
+    
+    2.1. Localhost:3000/ => Deberá recibir un mensaje que informe que la API funciona correctamente
+    
+    2.2. Localhost:3000/integrantes => Deberá recibir una lista de todos los integrantes registrados en la base de datos, con sus respectivos datos registrados.
+    
+    2.3. Localhost:3000/cursos => Deberá recibir una lista de todos los cursos registrados en la base de datos, con sus respectivos datos registrados.
+    
+    2.2. Localhost:3000/integrantes => Deberá recibir una lista de todos los integrantes registrados en la base de datos, con sus respectivos datos registrados.
 
 3- POST: 
     3.1- Localhost:3000/integrantes => Para cargar un integrante deberá cargar un archivo .json con los siguientes datos: nombre, apellido, email y dni. => Deberá recibir un mensaje que informe que el integrante se cargó correctamente y visualizar los datos caargados.
