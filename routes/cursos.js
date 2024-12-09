@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
     try {
         const nuevoCurso = new Curso({ nombre, codigo, descripcion, duracion });
         const cursoGuardado = await nuevoCurso.save();
-        res.status(201).json(cursoGuardado);
+        res.status(201).json({mensaje: 'Curso cargado correctamente',cursoGuardado});
     } catch (err) {
         res.status(500).json({ message: 'Error al crear el curso', error: err.message });
     }
@@ -98,7 +98,7 @@ router.get('/cursos/:dni', async (req, res) => {
         const cursos = await Curso.find({ integrantes: integrante._id });
 
         res.status(200).json({
-            message: `Cursos inscritos del integrante con DNI ${dni}`,
+            message: `Cursos del integrante con DNI ${dni}`,
             cursos
         });
     } catch (err) {

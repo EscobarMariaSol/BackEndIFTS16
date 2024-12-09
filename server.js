@@ -32,7 +32,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 // Ruta principal
 app.get('/', (req, res) => {
-    res.send('¡Mi API está funcionando correctamente!');
+    res.send('¡Mi aplicación está funcionando correctamente!');
 });
 
 // Iniciar el servidor
