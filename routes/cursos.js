@@ -6,10 +6,10 @@ const Integrante = require('../models/integranteModel');
 
 // Ruta (6) => POST: Crear un curso
 router.post('/', async (req, res) => {
-    const { nombre, descripcion, duracion } = req.body;
+    const { nombre, codigo, descripcion, duracion } = req.body;
 
     try {
-        const nuevoCurso = new Curso({ nombre, descripcion, duracion });
+        const nuevoCurso = new Curso({ nombre, codigo, descripcion, duracion });
         const cursoGuardado = await nuevoCurso.save();
         res.status(201).json(cursoGuardado);
     } catch (err) {
@@ -60,14 +60,26 @@ router.put('/asignar', async (req, res) => {
 ;
 
 // Ruta (9) => DELETE: Eliminar un curso
-router.delete('/:id', async (req, res) => {
-    try {
-        const cursoEliminado = await Curso.findByIdAndDelete(req.params.id);
-        if (!cursoEliminado) return res.status(404).json({ message: 'Curso no encontrado' });
+router.delete('/:codigoCurso', async (req, res) => {
+    const { codigoCurso } = req.params;
 
-        res.status(200).json({ message: 'Curso eliminado', cursoEliminado });
+    try {
+        // Buscar y eliminar el curso por su nombre
+        const cursoEliminado = await Curso.findOneAndDelete({ codigo: codigoCurso });
+
+        if (!cursoEliminado) {
+            return res.status(404).json({ message: 'Curso no encontrado' });
+        }
+
+        res.status(200).json({
+            message: 'Curso eliminado con éxito',
+            curso: cursoEliminado
+        });
     } catch (err) {
-        res.status(500).json({ message: 'Error al eliminar el curso', error: err.message });
+        res.status(500).json({
+            message: 'Error al eliminar el curso',
+            error: err.message
+        });
     }
 });
 
