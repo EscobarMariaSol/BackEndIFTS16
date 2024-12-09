@@ -276,7 +276,7 @@
 
     5.2. *Eliminar un curso* `Localhost:3000/cursos/:codigo`:  Para eliminar un curso con todos sus datos. Si el curso cuyo código ha ingresado existe, como respuesta recibirá un mensaje que confirme que el integrante se eliminó correctamente, junto con los datos eliminados.
 
-    ````
+    ```
     {
         "message": "Curso eliminado con éxito",
         "curso": {
@@ -292,5 +292,5 @@
     ```
 
      _Errores:_ 
-En caso de que el integrante no exista, se recibirá el siguiente mensaje `Curso no encontrado`. En caso de algún otro error se recibirá el siguiente mensaje `Error al eliminar el curso`, junto con una descripción del error.
+        En caso de que el integrante no exista, se recibirá el siguiente mensaje `Curso no encontrado`. En caso de algún otro error se recibirá el siguiente mensaje `Error al eliminar el curso`, junto con una descripción del error.
 
