@@ -83,4 +83,31 @@ router.delete('/:codigoCurso', async (req, res) => {
     }
 });
 
+// Ruta (10) => GET: Buscar todos los cursos asignados a un integrante según su DNI
+router.get('/cursos/:dni', async (req, res) => {
+    const { dni } = req.params;
+
+    try {
+        // Buscar al integrante por DNI
+        const integrante = await Integrante.findOne({ dni });
+        if (!integrante) {
+            return res.status(404).json({ message: 'El DNI del integrante no es válido' });
+        }
+
+        // Buscar cursos donde esté inscrito el integrante
+        const cursos = await Curso.find({ integrantes: integrante._id });
+
+        res.status(200).json({
+            message: `Cursos inscritos del integrante con DNI ${dni}`,
+            cursos
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: 'Error al consultar los cursos del integrante',
+            error: err.message
+        });
+    }
+});
+
+
 module.exports = router;
